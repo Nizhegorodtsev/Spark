@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="build" name="Spark Random">
+	<property name="ver.source" value="1.7" />
+	<property name="ver.target" value="1.7" />
+	<property name="dir.home" value="." />
+	<property name="dir.src" value="${dir.home}/src" />
+	<property name="dir.lib" value="${dir.home}/lib" />
+	<property name="dir.deploy" value="${dir.home}/deploy" />
+	<property name="dir.build" value="${dir.home}/build" />
+	<property name="dir.build.classes" value="${dir.build}/classes" />
+
+	<path id="Build.classpath">
+		<fileset dir="${dir.lib}">
+			<include name="**/spark-assembly-1.6.0-hadoop2.6.0.jar" />
+		</fileset>
+	</path>
+
+	<target name="clean">
+		<delete dir="${dir.build}" failonerror="false" />
+		<delete dir="${dir.deploy}" failonerror="false" />
+	</target>
+
+	<target name="init" depends="clean">
+		<mkdir dir="${dir.build.classes}" />
+		<mkdir dir="${dir.deploy}" />
+		<copy includeemptydirs="false" todir="${dir.build.classes}">
+			<fileset dir="${dir.src}" excludes="**/*.launch, **/.svn/, **/*.java" />
+		</copy>
+	</target>
+
+	<target name="compile" depends="init">
+		<javac destdir="${dir.build.classes}" source="${ver.source}"
+			target="${ver.target}" debug="true" debuglevel="source,lines,vars"
+			includeantruntime="false">
+			<src path="${dir.src}" />
+			<exclude name="**/.svn/" />
+			<classpath refid="Build.classpath" />
+		</javac>
+	</target>
+
+	<target name="compress">
+		<jar destfile="${dir.deploy}/SparkRandom.jar" basedir="${dir.build.classes}"
+			whenmanifestonly="fail" defaultexcludes="true"
+			includes="**/.jasper, images/*.*, **/*.class, **/*.xsl, **/*.xml, **/*.xsd">
+			<manifest />
+		</jar>
+	</target>
+
+	<target name="build" depends="compile, compress" />
+</project>
